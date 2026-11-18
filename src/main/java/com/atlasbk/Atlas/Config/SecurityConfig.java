@@ -27,12 +27,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public Long generateId(){
-        final SecureRandom secureRandom = new SecureRandom();
-        return 1_000_000L + secureRandom.nextLong(9_000_000L);
-    }
-
     @Service
     public class CustomUserDetailsService implements UserDetailsService {
         private final UserRepository userRepository;

@@ -4,6 +4,7 @@ public record UserRegisterRequest(
         String email,
         String cpf,
         String password,
-        String username
+        String username,
+        String accPass
 ) {
 }

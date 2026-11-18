@@ -1,7 +1,10 @@
 package com.atlasbk.Atlas.Auth;
 
+import com.atlasbk.Atlas.Account.Account;
+import com.atlasbk.Atlas.Account.AccountRepository;
 import com.atlasbk.Atlas.Auth.requests.UserLoginRequest;
 import com.atlasbk.Atlas.Auth.requests.UserRegisterRequest;
+import com.atlasbk.Atlas.Config.FuncConfiguration;
 import com.atlasbk.Atlas.Config.SecurityConfig;
 import com.atlasbk.Atlas.User.User;
 import com.atlasbk.Atlas.User.UserRepository;
@@ -17,6 +20,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class AuthService {
@@ -24,11 +28,15 @@ public class AuthService {
     private final UserRepository userRepository;
     private final SecurityConfig securityConfig;
     private final AuthenticationManager authenticationManager;
+    private final AccountRepository accountRepository;
+    private final FuncConfiguration funcConfiguration;
 
-    public AuthService(UserRepository userRepository, SecurityConfig securityConfig, AuthenticationManager authenticationManager) {
+    public AuthService(UserRepository userRepository, SecurityConfig securityConfig, AuthenticationManager authenticationManager, AccountRepository accountRepository, FuncConfiguration funcConfiguration) {
         this.userRepository = userRepository;
         this.securityConfig = securityConfig;
         this.authenticationManager = authenticationManager;
+        this.accountRepository = accountRepository;
+        this.funcConfiguration = funcConfiguration;
     }
 
     public ResponseEntity<?> registerUser(UserRegisterRequest request){
@@ -42,18 +50,38 @@ public class AuthService {
 
         User user = new User();
 
-        Long id = securityConfig.generateId();
-        while(userRepository.existsById(id)){
-            id = securityConfig.generateId();
+        Long userId = ThreadLocalRandom.current().nextLong(1000000, 9999999);
+        while(userRepository.existsById(userId)){
+            userId = ThreadLocalRandom.current().nextLong(1000000, 9999999);
         }
 
-        user.setId(id);
+        user.setId(userId);
         user.setEmail(request.email());
         user.setHashPass(securityConfig.passwordEncoder().encode(request.password()));
         user.setCpf(request.cpf());
         user.setUsername(request.username());
 
         userRepository.save(user);
+
+        // CRIAR CONTA
+        Account account = new Account();
+
+        Long accId = ThreadLocalRandom.current().nextLong(1000000, 9999999);
+        while(accountRepository.existsById(accId)){
+            accId = ThreadLocalRandom.current().nextLong(1000000, 9999999);
+        }
+
+        Integer accNum = ThreadLocalRandom.current().nextInt(1000000, 9999999);
+        while(accountRepository.existsByAccNum(accNum)){
+            accNum = ThreadLocalRandom.current().nextInt(1000000, 9999999);
+        }
+
+        account.setId(accId);
+        account.setUserId(user);
+        account.setAccPass(request.accPass());
+        account.setAccNum(accNum);
+
+        accountRepository.save(account);
 
         return ResponseEntity.status(200).body("Usuário registrado");
 
