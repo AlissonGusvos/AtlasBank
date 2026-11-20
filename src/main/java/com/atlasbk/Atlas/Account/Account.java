@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 
 @Entity
 @Table(name = "accounts")
@@ -21,7 +20,7 @@ public class Account {
     @JoinColumn(name = "user_id")
     private User userId;
 
-    private BigDecimal balance;
+    private double balance;
 
     @Column(name = "acc_pass")
     private String accPass;

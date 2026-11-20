@@ -19,7 +19,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -81,7 +80,7 @@ public class AuthService {
         account.setUserId(user);
         account.setAccPass(request.accPass());
         account.setAccNum(accNum);
-        account.setBalance(BigDecimal.valueOf(0));
+        account.setBalance(0.0);
 
         accountRepository.save(account);
 
