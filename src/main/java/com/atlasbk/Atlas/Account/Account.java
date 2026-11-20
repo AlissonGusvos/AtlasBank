@@ -4,6 +4,7 @@ import com.atlasbk.Atlas.User.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import java.math.BigDecimal;
 
 
 @Entity
@@ -20,7 +21,7 @@ public class Account {
     @JoinColumn(name = "user_id")
     private User userId;
 
-    private double balance;
+    private BigDecimal balance;
 
     @Column(name = "acc_pass")
     private String accPass;

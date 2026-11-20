@@ -1,7 +1,9 @@
 package com.atlasbk.Atlas.Account.request;
 
+import java.math.BigDecimal;
+
 public record DepositRequest(
-        double value,
+        BigDecimal value,
         String accPass
 ) {
 }
