@@ -72,9 +72,9 @@ public class AuthService {
             accId = ThreadLocalRandom.current().nextLong(1000000, 9999999);
         }
 
-        Integer accNum = ThreadLocalRandom.current().nextInt(1000000, 9999999);
+        Integer accNum = ThreadLocalRandom.current().nextInt(10000, 99999);
         while(accountRepository.existsByAccNum(accNum)){
-            accNum = ThreadLocalRandom.current().nextInt(1000000, 9999999);
+            accNum = ThreadLocalRandom.current().nextInt(10000, 99999);
         }
 
         account.setId(accId);

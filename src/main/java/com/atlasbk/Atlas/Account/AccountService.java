@@ -1,9 +1,11 @@
 package com.atlasbk.Atlas.Account;
 
+import com.atlasbk.Atlas.Account.Types.OpType;
 import com.atlasbk.Atlas.Account.request.DepositRequest;
 import com.atlasbk.Atlas.Account.request.TransferRequest;
 import com.atlasbk.Atlas.Account.request.WithdrawRequest;
 import com.atlasbk.Atlas.Account.responses.OverviewResponse;
+import com.atlasbk.Atlas.Extract.ExtractService;
 import com.atlasbk.Atlas.User.User;
 import com.atlasbk.Atlas.User.UserRepository;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +20,12 @@ public class AccountService {
 
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
+    private final ExtractService extractService;
 
-    public AccountService(AccountRepository accountRepository, UserRepository userRepository) {
+    public AccountService(AccountRepository accountRepository, UserRepository userRepository, ExtractService extractService) {
         this.accountRepository = accountRepository;
         this.userRepository = userRepository;
+        this.extractService = extractService;
     }
 
     // MAIN MENU
@@ -68,6 +72,8 @@ public class AccountService {
         account.setBalance(balance.add(value));
         accountRepository.save(account);
 
+        extractService.extract(OpType.DEPOSIT, account, value);
+
         return ResponseEntity.status(200).body("Depósito realizado");
 
     }
@@ -97,11 +103,12 @@ public class AccountService {
         account.setBalance(account.getBalance().subtract(value));
         accountRepository.save(account);
 
+        extractService.extract(OpType.SAKE, account, value);
+
         return ResponseEntity.status(200).body("Saque efetuado");
     }
 
     // TRANSFERENCIA
-
     public ResponseEntity<?> transfer(TransferRequest request, Authentication authentication){
         // RESGATAR CONTA PRINCIPAL
         Optional<User> optionalUser = userRepository.findByCpf(authentication.getName());
@@ -144,6 +151,8 @@ public class AccountService {
 
         accountRepository.save(recvAccount);
         accountRepository.save(account);
+
+        extractService.extract(OpType.TRANSFER, account, recvAccount, value);
 
         return ResponseEntity.status(200).body("Transferencia realizada");
     }
