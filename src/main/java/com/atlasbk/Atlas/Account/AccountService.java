@@ -1,6 +1,7 @@
 package com.atlasbk.Atlas.Account;
 
 import com.atlasbk.Atlas.Account.request.DepositRequest;
+import com.atlasbk.Atlas.Account.request.TransferRequest;
 import com.atlasbk.Atlas.Account.request.WithdrawRequest;
 import com.atlasbk.Atlas.Account.responses.OverviewResponse;
 import com.atlasbk.Atlas.User.User;
@@ -67,7 +68,7 @@ public class AccountService {
         account.setBalance(balance.add(value));
         accountRepository.save(account);
 
-        return ResponseEntity.status(200).body("Depósito feito");
+        return ResponseEntity.status(200).body("Depósito realizado");
 
     }
 
@@ -97,5 +98,53 @@ public class AccountService {
         accountRepository.save(account);
 
         return ResponseEntity.status(200).body("Saque efetuado");
+    }
+
+    // TRANSFERENCIA
+
+    public ResponseEntity<?> transfer(TransferRequest request, Authentication authentication){
+        // RESGATAR CONTA PRINCIPAL
+        Optional<User> optionalUser = userRepository.findByCpf(authentication.getName());
+        User user = optionalUser.get();
+
+        Optional<Account> optionalAccount = accountRepository.findByUserId_Id(user.getId());
+        Account account = optionalAccount.get();
+
+        BigDecimal value = request.value();
+        String accPass = request.accPass();
+
+        if (value.compareTo(BigDecimal.ZERO) <= 0){
+            return ResponseEntity.status(400).body("Insira um valor válido");
+        }
+
+        if (!accPass.equals(account.getAccPass())){
+            return ResponseEntity.status(400).body("Senha inválida");
+        }
+
+        // RESGATAR CONTA DESTINATARIA
+        Optional<Account> optionalDestAccount = accountRepository.findAccountByAccNum(request.recvAccNum());
+        Account recvAccount = optionalDestAccount.get();
+
+        // INFORMACOES DAS CONTAS
+
+        // Remetente
+        BigDecimal princBalance = account.getBalance();
+
+        // Destinatario
+        BigDecimal recvBalance = recvAccount.getBalance();
+
+        // LOGICA
+
+        if (value.compareTo(princBalance) > 0){
+            return ResponseEntity.status(400).body("Saldo Insuficiente");
+        }
+
+        recvAccount.setBalance(recvBalance.add(value));
+        account.setBalance(princBalance.subtract(value));
+
+        accountRepository.save(recvAccount);
+        accountRepository.save(account);
+
+        return ResponseEntity.status(200).body("Transferencia realizada");
     }
 }

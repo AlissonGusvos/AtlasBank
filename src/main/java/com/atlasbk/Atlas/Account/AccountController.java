@@ -1,6 +1,7 @@
 package com.atlasbk.Atlas.Account;
 
 import com.atlasbk.Atlas.Account.request.DepositRequest;
+import com.atlasbk.Atlas.Account.request.TransferRequest;
 import com.atlasbk.Atlas.Account.request.WithdrawRequest;
 import com.atlasbk.Atlas.Account.responses.OverviewResponse;
 import org.springframework.http.ResponseEntity;
@@ -30,5 +31,10 @@ public class AccountController {
     @PostMapping("/withdraw")
     public ResponseEntity<?> withdraw(@RequestBody WithdrawRequest request, Authentication authentication){
         return accountService.withdraw(request, authentication);
+    }
+
+    @PostMapping("/transfer")
+    public ResponseEntity<?> transfer(@RequestBody TransferRequest request, Authentication authentication){
+        return accountService.transfer(request, authentication);
     }
 }
