@@ -76,7 +76,10 @@ public class ExtractService {
         Account account = optionalAccount.get();
 
         // RESGATAR EXTRATO
-        List<Extract> extracts = extractRepository.findDistinctByOrgnAccount_Id(account.getId());
+        List<Extract> extracts = extractRepository.findDistinctByOrgnAccount_IdOrRecvAccount_Id(
+                account.getId(),
+                account.getId()
+        );
 
         return extracts.stream()
                 .map(extract -> toResponse(extract, account)).toList();
@@ -88,11 +91,18 @@ public class ExtractService {
         boolean isTransfer = extract.getRecvAccount() != null;
 
         String direction = null;
-        if (extract.getOpType() == OpType.DEPOSIT){
-            direction = "ENTRADA";
+        if (isOrigin){
+            if (extract.getOpType() == OpType.DEPOSIT) {
+                direction = "ENTRADA";
+            } else {
+                direction = "SAÍDA";
+            }
         }
-        else {
-            direction = "SAÍDA";
+
+        if (!isOrigin){
+            if (extract.getOpType() == OpType.TRANSFER) {
+                direction = "ENTRADA";
+            }
         }
 
         String transferNameReceiver = null;

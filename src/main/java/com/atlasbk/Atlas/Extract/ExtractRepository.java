@@ -7,5 +7,8 @@ import java.util.List;
 public interface ExtractRepository extends JpaRepository<Extract, Long> {
     boolean existsById(Long id);
 
-    List<Extract> findDistinctByOrgnAccount_Id(Long id);
+    List<Extract> findDistinctByOrgnAccount_IdOrRecvAccount_Id(
+            Long orgnAccountId,
+            Long recvAccountId
+    );
 }
